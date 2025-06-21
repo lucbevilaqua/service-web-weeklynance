@@ -2,7 +2,7 @@
 "use client";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { financeSchema, FinanceFormValues } from "@/lib/form-schema";
+import { FinanceFormValues, FinanceSchema } from "@/lib/zod/schema";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import WeekSelector from "@/components/WeekSelector";
@@ -14,7 +14,7 @@ export default function FinancesForm() {
   const [week, setWeek] = useState("week1");
 
   const methods = useForm<FinanceFormValues>({
-    resolver: zodResolver(financeSchema),
+    resolver: zodResolver(FinanceSchema),
     defaultValues: {
       currency: "EUR",
       splitOption: "mine",
@@ -36,7 +36,7 @@ export default function FinancesForm() {
 
   const onSubmit = async (data: FinanceFormValues) => {
     try {
-      const response = await fetch("/api/finance", {
+      const response = await fetch("/api/finance/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -51,9 +51,7 @@ export default function FinancesForm() {
 
       toast.success("Finance entry saved successfully!");
       reset({
-        currency: "EUR",
         splitOption: "mine",
-        week: "week1",
         amount: undefined,
         category: undefined,
         establishment: "",

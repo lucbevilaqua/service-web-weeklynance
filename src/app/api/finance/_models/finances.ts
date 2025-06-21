@@ -1,10 +1,10 @@
 export type Extra = {
   name: string;
-  value: number;
+  amount: number;
 };
 
 export type Finance = {
-  id: number;
+  id: string;
   currency: string;
   amount: number;
   week: string;
@@ -14,19 +14,9 @@ export type Finance = {
   extras: Extra[] | null;
   myAmount: number;
   homeOrOtherAmount: number;
-  created_at: string;
+  createdAt: string;
 };
 
-export type FinanceDb = {
-  id: number;
-  currency: string;
-  amount: number;
-  week: string;
-  category: string;
-  establishment: string;
-  splitOption: "mine" | "others" | "home";
-  extras: string | null;
-  myAmount: number;
-  homeOrOtherAmount: number;
-  created_at: string;
+export interface FinanceSheets extends Finance {
+  rowNumber: number;
 };

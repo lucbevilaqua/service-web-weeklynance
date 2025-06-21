@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const financeSchema = z.object({
+export const FinanceSchema = z.object({
   currency: z.enum(["EUR", "BRL", "GBP"]),
   amount: z.coerce.number().positive("The value must be a positive number."),
   week: z.enum(["week1", "week2", "week3", "week4"]),
@@ -17,10 +17,10 @@ export const financeSchema = z.object({
     .array(
       z.object({
         name: z.string().min(1, "Please enter a name."),
-        value: z.coerce.number().positive("Value must be positive."),
+        amount: z.coerce.number().positive("Value must be positive."),
       })
     )
     .optional()
 });
 
-export type FinanceFormValues = z.infer<typeof financeSchema>;
+export type FinanceFormValues = z.infer<typeof FinanceSchema>;

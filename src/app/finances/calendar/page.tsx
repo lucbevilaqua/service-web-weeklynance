@@ -8,13 +8,14 @@ import { getDay } from "date-fns/getDay";
 import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import WeeklySummary from "@/components/WeeklySummary";
-import { FinanceDb } from "../../api/finance/_models/finances";
 import { toast } from "sonner";
+import { FinanceSheets } from "@/app/api/finance/_models/finances";
+import Link from "next/link";
 
 const locales = { "en-US": enUS };
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
 
-type Event = { id: number; title: string; start: Date; end: Date; raw: FinanceDb };
+type Event = { id: number; title: string; start: Date; end: Date; raw: FinanceSheets };
 
 export default function Page() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -25,11 +26,11 @@ export default function Page() {
     fetch("/api/finance")
       .then(res => res.json())
       .then(json => {
-        const evts = json.data.map((f: FinanceDb) => ({
+        const evts = json.data.map((f: FinanceSheets) => ({
           id: f.id,
           title: `${f.establishment}: ${f.currency} ${f.amount}`,
-          start: new Date(f.created_at),
-          end: new Date(f.created_at),
+          start: new Date(f.createdAt),
+          end: new Date(f.createdAt),
           raw: f,
         }));
         setEvents(evts);
@@ -39,7 +40,7 @@ export default function Page() {
 
   const deleteData = (evt: Event) => {
     if (confirm(`Delete entry ${evt.title}?`)) {
-      fetch(`/api/finance?id=${evt.id}`, { method: "DELETE" })
+      fetch(`/api/finance/delete?rowNumber=${evt.raw.rowNumber}`, { method: "DELETE" })
         .then(r => {
           if (r.ok) {
             toast.success("Deleted!");
@@ -79,12 +80,14 @@ export default function Page() {
       <div className="mt-4">
         <WeeklySummary weekTotals={weekTotals} />
       </div>
-      <button
-        className="fixed bottom-4 right-4 bg-green-600 text-white p-4 rounded-full shadow-lg"
-        onClick={() => alert("Will implement Google Sheets export")}
-      >
-        📤 Export to Google Sheets
-      </button>
+
+      <Link href='/' className="fixed bottom-4 left-4 bg-green-600 text-white p-4 rounded-full shadow-lg">
+        Back to Home
+      </Link>
+
+      <Link href='/finances' className="fixed bottom-4 right-4 bg-purple-700 text-white p-4 rounded-full shadow-lg">
+        ➕ Go to Register
+      </Link>
     </main>
   );
 }

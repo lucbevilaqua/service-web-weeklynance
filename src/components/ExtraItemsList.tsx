@@ -24,6 +24,7 @@ export default function ExtraItemsList() {
             {...register(`extras.${index}.amount`, { valueAsNumber: true })}
             placeholder="Amount"
             type="number"
+            step="0.01"
             className="w-1/2"
           />
           <Button
