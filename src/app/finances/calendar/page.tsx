@@ -81,13 +81,16 @@ export default function Page() {
         <WeeklySummary weekTotals={weekTotals} />
       </div>
 
-      <Link href='/' className="fixed bottom-4 left-4 bg-green-600 text-white p-4 rounded-full shadow-lg">
-        Back to Home
-      </Link>
+      <div className="mt-4 flex justify-around">
+        <Link href='/' className="left-4 bg-green-600 text-white p-4 rounded-full shadow-lg">
+          Back to Home
+        </Link>
 
-      <Link href='/finances' className="fixed bottom-4 right-4 bg-purple-700 text-white p-4 rounded-full shadow-lg">
-        ➕ Go to Register
-      </Link>
+        <Link href='/finances' className="right-4 bg-purple-700 text-white p-4 rounded-full shadow-lg">
+          ➕ Go to Register
+        </Link>
+      </div>
+
     </main>
   );
 }
