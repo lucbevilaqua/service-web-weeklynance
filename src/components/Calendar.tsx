@@ -152,8 +152,8 @@ export default function CalendarWithFinances({ events, onDeleteEvent, onCreateNe
                 </Button>
                 <div className="text-muted-foreground text-xs">
                   My Amount: {event.resume.myAmount.formatToCurrency(event.currency)}<br />
-                  Home Amount: {event.resume.house.formatToCurrency(event.currency)}
-                  Others or Others Amount: {event.resume.others.formatToCurrency(event.currency)}
+                  Home Amount: {event.resume.house.formatToCurrency(event.currency)}<br />
+                  Others Amount: {event.resume.others.formatToCurrency(event.currency)}
                 </div>
               </div>
             ))
