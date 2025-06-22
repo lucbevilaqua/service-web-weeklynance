@@ -3,7 +3,7 @@ import { z } from "zod";
 export const FinanceSchema = z.object({
   currency: z.enum(["EUR", "BRL", "GBP"]),
   amount: z.coerce.number().positive("The value must be a positive number."),
-  week: z.enum(["week1", "week2", "week3", "week4"]),
+  date: z.string(),
   category: z.enum([
     "market",
     "bar",
@@ -12,11 +12,11 @@ export const FinanceSchema = z.object({
     "transport_internet",
   ]),
   establishment: z.string().min(1, "Please provide the establishment name."),
-  splitOption: z.enum(["mine", "others", "home"]),
   extras: z
     .array(
       z.object({
         name: z.string().min(1, "Please enter a name."),
+        splitOption: z.enum(["others", "home"]),
         amount: z.coerce.number().positive("Value must be positive."),
       })
     )

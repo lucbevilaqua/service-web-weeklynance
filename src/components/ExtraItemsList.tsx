@@ -20,6 +20,10 @@ export default function ExtraItemsList() {
             placeholder="Name"
             className="w-1/2"
           />
+          <select {...register(`extras.${index}.splitOption`)} className="w-full p-2 border rounded-md mt-1">
+            <option value="others">Items for others</option>
+            <option value="home">House items</option>
+          </select>
           <Input
             {...register(`extras.${index}.amount`, { valueAsNumber: true })}
             placeholder="Amount"
@@ -36,7 +40,7 @@ export default function ExtraItemsList() {
           </Button>
         </div>
       ))}
-      <Button type="button" onClick={() => append({ name: "", amount: 0 })}>
+      <Button type="button" onClick={() => append({ name: "", splitOption: 'others', amount: 0 })}>
         Add Item
       </Button>
     </div>

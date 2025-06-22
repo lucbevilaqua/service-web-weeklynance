@@ -18,18 +18,16 @@ export async function GET() {
     const data = rows.slice(1);
 
     const dataMapped: FinanceSheets[] = data.map((raw, i) => ({
-      rowNumber: i,
+      rowNumber: i + 2,
       id: raw[0],
       currency: raw[1],
       amount: +raw[2],
-      week: raw[3],
+      date: raw[3],
       category: raw[4],
       establishment: raw[5],
-      splitOption: raw[6],
-      myAmount: +raw[7],
-      homeOrOtherAmount: +raw[8],
-      createdAt: raw[9],
-      extras: JSON.parse(raw[10]),
+      resume: JSON.parse(raw[6]),
+      createdAt: raw[7],
+      extras: JSON.parse(raw[8]),
     }));
 
     return NextResponse.json({ data: dataMapped });

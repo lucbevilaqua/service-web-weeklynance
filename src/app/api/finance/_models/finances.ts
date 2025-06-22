@@ -1,19 +1,24 @@
 export type Extra = {
   name: string;
+  splitOption: "others" | "home";
   amount: number;
+};
+
+export type Resume = {
+  myAmount: number;
+  others: number;
+  house: number;
 };
 
 export type Finance = {
   id: string;
   currency: string;
   amount: number;
-  week: string;
+  date: string;
   category: string;
   establishment: string;
-  splitOption: "mine" | "others" | "home";
   extras: Extra[] | null;
-  myAmount: number;
-  homeOrOtherAmount: number;
+  resume: Resume;
   createdAt: string;
 };
 

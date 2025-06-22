@@ -5,20 +5,23 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FinanceFormValues, FinanceSchema } from "@/lib/zod/schema";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import WeekSelector from "@/components/WeekSelector";
 import ExtraItemsList from "@/components/ExtraItemsList";
-import { useState } from "react";
 import { toast } from "sonner";
 
-export default function FinancesForm() {
-  const [week, setWeek] = useState("week1");
+interface EventModalProps {
+  date: Date;
+  onSave: () => void;
+}
+
+export default function FinancesForm({ date, onSave }: EventModalProps) {
+  const dateFormated = new Intl.DateTimeFormat("en-US").format(date);
 
   const methods = useForm<FinanceFormValues>({
     resolver: zodResolver(FinanceSchema),
     defaultValues: {
       currency: "EUR",
-      splitOption: "mine",
-      week: "week1",
+      category: "market",
+      date: dateFormated,
       extras: []
     },
   });
@@ -26,13 +29,9 @@ export default function FinancesForm() {
   const {
     register,
     handleSubmit,
-    watch,
     reset,
-    setValue,
     formState: { errors },
   } = methods;
-
-  const selectedSplit = watch("splitOption");
 
   const onSubmit = async (data: FinanceFormValues) => {
     try {
@@ -51,13 +50,13 @@ export default function FinancesForm() {
 
       toast.success("Finance entry saved successfully!");
       reset({
-        splitOption: "mine",
+        currency: 'EUR',
         amount: undefined,
-        category: undefined,
+        category: 'market',
         establishment: "",
         extras: [],
       });
-      setWeek("week1");
+      onSave();
     } catch (error: any) {
       toast.error(`Error saving entry: ${error.message}`);
     }
@@ -86,14 +85,6 @@ export default function FinancesForm() {
           {errors.amount && <p className="text-red-500 text-sm">{errors.amount.message}</p>}
         </div>
 
-        <WeekSelector
-          selectedWeek={week}
-          onChange={(value: any) => {
-            setValue("week", value);
-            setWeek(value);
-          }}
-        />
-
         <div>
           <label className="font-medium">Category</label>
           <select {...register("category")} className="w-full p-2 border rounded-md mt-1">
@@ -110,16 +101,7 @@ export default function FinancesForm() {
           <Input {...register("establishment")} placeholder="e.g., Lidl, Starbucks..." />
         </div>
 
-        <div>
-          <label className="font-medium">Split Option</label>
-          <select {...register("splitOption")} className="w-full p-2 border rounded-md mt-1">
-            <option value="mine">Just mine</option>
-            <option value="others">Includes items for others</option>
-            <option value="home">Includes house items</option>
-          </select>
-        </div>
-
-        {selectedSplit !== "mine" && <ExtraItemsList />}
+        <ExtraItemsList />
 
         <Button type="submit" className="w-full mt-4">Submit</Button>
       </form>

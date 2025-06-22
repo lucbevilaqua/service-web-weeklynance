@@ -1,22 +1,31 @@
 "use client";
-import Link from "next/link";
+import { useEffect, useState } from "react";
+import { FinanceSheets } from "@/app/api/finance/_models/finances";
+import CalendarWithFinances from "@/components/Calendar";
 
 export default function HomePage() {
+  const [events, setEvents] = useState<FinanceSheets[]>([]);
+
+  useEffect(() => {
+    getEvents();
+  }, []);
+
+  const getEvents = () => {
+    fetch("/api/finance")
+      .then(res => res.json())
+      .then(json => {
+        const evts = json.data;
+        setEvents(evts);
+      });
+  }
+
+  const handleDeleteEvent = (evt: FinanceSheets) => {
+    setEvents(prev => prev.filter(e => e.id !== evt.id));
+  }
+
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center gap-6 p-4">
-      <h1 className="text-2xl font-bold">My Finances</h1>
-      <div className="w-full max-w-md flex flex-col gap-4">
-        <Link href="/finances">
-          <div className="p-6 bg-purple-700 text-white rounded-lg text-center text-lg font-medium shadow-md hover:bg-purple-800 transition">
-            ➕ Add New Entry
-          </div>
-        </Link>
-        <Link href="/finances/calendar">
-          <div className="p-6 bg-blue-600 text-white rounded-lg text-center text-lg font-medium shadow-md hover:bg-blue-700 transition">
-            📅 View Calendar
-          </div>
-        </Link>
-      </div>
+    <main className="p-2">
+      <CalendarWithFinances events={events} onDeleteEvent={handleDeleteEvent} onCreateNewEvent={getEvents} />
     </main>
   );
 }

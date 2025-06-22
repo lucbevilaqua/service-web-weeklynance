@@ -2,32 +2,29 @@
 import { saveToGoogleSheets } from "@/lib/google/saveToGoogleSheets";
 import { FinanceSchema } from "@/lib/zod/schema";
 import { NextRequest, NextResponse } from "next/server";
-import { Finance } from "../_models/finances";
+import { Finance, Resume } from "../_models/finances";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const data = FinanceSchema.parse(body);
 
-    let myAmount = data.amount;
-    let homeOrOtherAmount = 0;
+    const resume: Resume = { others: 0, myAmount: data.amount, house: 0 };
+    if(data.extras?.length) {
 
-    if (data.splitOption === 'others' && data.extras) {
-      const totalOthers = data.extras.reduce((sum, item) => sum + item.amount, 0);
-      myAmount = data.amount - totalOthers;
-      homeOrOtherAmount = totalOthers;
-    }
+      for (const element of data.extras) {
+        const cat = element.splitOption as 'others' | 'house';
+        resume[cat] += element.amount;
 
-    if (data.splitOption === 'home' && data.extras) {
-      const totalHome = data.extras.reduce((sum, item) => sum + item.amount, 0);
-      homeOrOtherAmount = totalHome;
+        resume.myAmount -= element.amount;
+      }
     }
 
     const financeEntry = {
       id: crypto.randomUUID(),
       ...data,
-      myAmount,
-      homeOrOtherAmount,
+      resume,
+      date: data.date,
       createdAt: new Date().toISOString(),
     } as Finance;
 
