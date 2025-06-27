@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useMemo, useState } from "react"
+import React, { Suspense, useEffect, useMemo, useState } from "react"
 import { Trash2Icon } from "lucide-react"
 
 import { Calendar } from "@/components/ui/calendar"
@@ -10,12 +10,7 @@ import { endOfWeek, format, isSameDay, startOfWeek } from "date-fns"
 import { Button } from "./ui/button"
 import { toast } from "sonner"
 import { EventModal } from "./EventModal"
-
-interface CalendarWithFinance {
-  events: FinanceSheets[],
-  onDeleteEvent: (event: FinanceSheets) => void
-  onCreateNewEvent: () => void
-}
+import { useEventsContext } from "@/context/eventsProvider/eventsProvider"
 
 type WeekResume = Record<string, number>;
 type WeekiesResume = Record<string, Record<string, number>>;
@@ -35,7 +30,8 @@ function calculateWeekTotals(events: FinanceSheets[]): WeekiesResume {
   return totals;
 }
 
-export default function CalendarWithFinances({ events, onDeleteEvent, onCreateNewEvent }: CalendarWithFinance) {
+export default function CalendarWithFinances() {
+  const { events, deleteEvent } = useEventsContext();
   const [date, setDate] = useState<Date>(new Date());
   const [weekResume, setWeekResume] = useState<WeekResume>();
 
@@ -79,7 +75,7 @@ export default function CalendarWithFinances({ events, onDeleteEvent, onCreateNe
         .then(r => {
           if (r.ok) {
             toast.success("Event Deleted!");
-            onDeleteEvent(evt)
+            deleteEvent(evt)
           } else {
             toast.error("Delete failed");
           }
@@ -88,78 +84,80 @@ export default function CalendarWithFinances({ events, onDeleteEvent, onCreateNe
   }
 
   return (
-    <Card className="w-fill py-4">
-      <CardContent className="px-4 flex justify-center">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={handleChangeDate}
-          className="bg-transparent p-0"
-          required
-        />
-      </CardContent>
-      <CardFooter className="flex flex-col items-start gap-3 border-t px-4 !pt-4">
-        <div className="flex w-full items-center justify-between px-1">
-          <div className="text-sm font-medium">
-            {date?.toLocaleDateString("en-US", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-          </div>
-
-          <EventModal date={date} onSave={onCreateNewEvent} />
-
-        </div>
-        <div className="flex w-full flex-col gap-2">
-          {
-            weekResume &&
-            <div
-              key='total-week'
-              className="bg-blue-500 after:bg-primary/70 relative rounded-md p-2 pl-6 text-sm after:absolute after:inset-y-2 after:left-2 after:w-1 after:rounded-full"
-            >
-              <h2 className="font-bold text-white text-lg">Week Resume</h2>
-              <h3 className="font-bold text-white">{getCurrentRangeWeek.weekStart} - {getCurrentRangeWeek.weekEnd}</h3>
-
-              <div className="text-amber-50 text-sm">
-                {
-                  Object.entries(weekResume).map(([cat, value]) => (
-                    <>
-                      <span key={cat}>{cat}: {value.formatToCurrency()}</span> <br />
-                    </>
-                  ))
-                }
-              </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Card className="w-fill py-4">
+        <CardContent className="px-4 flex justify-center">
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={handleChangeDate}
+            className="bg-transparent p-0"
+            required
+          />
+        </CardContent>
+        <CardFooter className="flex flex-col items-start gap-3 border-t px-4 !pt-4">
+          <div className="flex w-full items-center justify-between px-1">
+            <div className="text-sm font-medium">
+              {date?.toLocaleDateString("en-US", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
             </div>
-          }
 
-          {
-            getDayEvents.map((event) => (
+            <EventModal date={date} />
+
+          </div>
+          <div className="flex w-full flex-col gap-2">
+            {
+              weekResume &&
               <div
-                key={event.id}
-                className="bg-muted after:bg-primary/70 relative rounded-md p-2 pl-6 text-sm after:absolute after:inset-y-2 after:left-2 after:w-1 after:rounded-full"
+                key='total-week'
+                className="bg-blue-500 after:bg-primary/70 relative rounded-md p-2 pl-6 text-sm after:absolute after:inset-y-2 after:left-2 after:w-1 after:rounded-full"
               >
-                <div className="font-medium">{event.establishment} ({event.amount.formatToCurrency(event.currency)})</div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-4 absolute top-6 right-5"
-                  title="Delete Event"
-                  onClick={() => deleteData(event)}
-                >
-                  <Trash2Icon />
-                  <span className="sr-only">Delete Event</span>
-                </Button>
-                <div className="text-muted-foreground text-xs">
-                  My Amount: {event.resume.myAmount.formatToCurrency(event.currency)}<br />
-                  Home Amount: {event.resume.house.formatToCurrency(event.currency)}<br />
-                  Others Amount: {event.resume.others.formatToCurrency(event.currency)}
+                <h2 className="font-bold text-white text-lg">Week Resume</h2>
+                <h3 className="font-bold text-white">{getCurrentRangeWeek.weekStart} - {getCurrentRangeWeek.weekEnd}</h3>
+
+                <div className="text-amber-50 text-sm">
+                  {
+                    Object.entries(weekResume).map(([cat, value]) => (
+                      <>
+                        <span key={cat}>{cat}: {value.formatToCurrency()}</span> <br />
+                      </>
+                    ))
+                  }
                 </div>
               </div>
-            ))
-          }
-        </div>
-      </CardFooter>
-    </Card>
+            }
+
+            {
+              getDayEvents.map((event) => (
+                <div
+                  key={event.id}
+                  className="bg-muted after:bg-primary/70 relative rounded-md p-2 pl-6 text-sm after:absolute after:inset-y-2 after:left-2 after:w-1 after:rounded-full"
+                >
+                  <div className="font-medium">{event.establishment} ({event.amount.formatToCurrency(event.currency)})</div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-4 absolute top-6 right-5"
+                    title="Delete Event"
+                    onClick={() => deleteData(event)}
+                  >
+                    <Trash2Icon />
+                    <span className="sr-only">Delete Event</span>
+                  </Button>
+                  <div className="text-muted-foreground text-xs">
+                    My Amount: {event.resume.myAmount.formatToCurrency(event.currency)}<br />
+                    Home Amount: {event.resume.house.formatToCurrency(event.currency)}<br />
+                    Others Amount: {event.resume.others.formatToCurrency(event.currency)}
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </CardFooter>
+      </Card>
+    </Suspense>
   )
 }

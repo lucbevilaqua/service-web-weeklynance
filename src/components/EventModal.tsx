@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -8,17 +10,26 @@ import {
 } from "@/components/ui/dialog"
 import FinancesForm from "./FinancesForm"
 import { PlusIcon } from "lucide-react"
+import useGetEvents from "@/services/finances/useGetEvents";
+import { useState } from "react";
 
 interface EventModalProps {
   date: Date;
-  onSave: () => void
 }
 
-export function EventModal({ date, onSave }: EventModalProps) {
+export function EventModal({ date }: EventModalProps) {
+  const { refetch } = useGetEvents()
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+
+  const handleSave = () => {
+    setIsDialogOpen(false);
+    refetch();
+  }
+
   return (
-    <Dialog>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <form>
-        <DialogTrigger asChild>
+        <DialogTrigger asChild >
           <Button
             variant="ghost"
             size="icon"
@@ -34,7 +45,7 @@ export function EventModal({ date, onSave }: EventModalProps) {
             <DialogTitle>Add event</DialogTitle>
           </DialogHeader>
 
-          <FinancesForm date={date} onSave={onSave} />
+          <FinancesForm date={date} onSave={handleSave} />
 
         </DialogContent>
       </form>

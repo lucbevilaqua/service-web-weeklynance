@@ -30,7 +30,7 @@ export default function FinancesForm({ date, onSave }: EventModalProps) {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isValid },
   } = methods;
 
   const onSubmit = async (data: FinanceFormValues) => {
@@ -103,7 +103,7 @@ export default function FinancesForm({ date, onSave }: EventModalProps) {
 
         <ExtraItemsList />
 
-        <Button type="submit" className="w-full mt-4">Submit</Button>
+        <Button type="submit" disabled={!isValid} className="w-full mt-4">Submit</Button>
       </form>
     </FormProvider>
   );
